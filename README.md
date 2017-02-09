@@ -1,4 +1,3 @@
-**not yet loaded to packagist...**
 
 # Postcodes
 
@@ -10,22 +9,11 @@ With thanks to https://postcodes.io
 
 ## Installation
 
-Add `postcodes` to `composer.json`.
-```
-"codescheme/postcodes": "~1.2"
-```
-
-And run 
-```
-composer update
-``` 
-
-Or, directly, run
 ```
 composer require codescheme/postcodes
 ```
 
-Now open `/config/app.php` and add the service provider to your `providers` array.
+Open `/config/app.php` and add the service provider to your `providers` array.
 ```php
 'providers' => [
 	Codescheme\Postcodes\PostcodeServiceProvider::class,
