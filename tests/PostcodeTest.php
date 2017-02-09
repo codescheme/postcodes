@@ -9,7 +9,11 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class PostcodeTest extends TestCase
 {
-    
+    /**
+     * Todo...
+     *
+     * @return void
+     */
 		protected function getPostcodes()
     {
         return $this->getMockBuilder('Codescheme\Postcodes\Classes\Postcode')
@@ -18,16 +22,6 @@ class PostcodeTest extends TestCase
                     ->getMock();
     }
 		
-		/**
-     * An http test
-     *
-     * @return void
-     */
-    public function testBasicHttp()
-    {
-				$response = $this->get('/postcode');
-        $response->assertStatus(200);
-    }
-		
+	
 
 }
