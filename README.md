@@ -1,3 +1,5 @@
+**not yet loaded to packagist...**
+
 # Postcodes
 
 A Laravel 5+ facade/service provider for the GET methods of the API at ```postcodes.io``` - useful for UK postcode validation and reverse geocoding: that is, determining postcode from lat, long coordinates.
