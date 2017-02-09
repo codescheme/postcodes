@@ -26,14 +26,14 @@ composer require codescheme/postcodes
 Now open `/config/app.php` and add the service provider to your `providers` array.
 ```php
 'providers' => [
-	Postcodes\PostcodeServiceProvider::class,
+	Codescheme\Postcodes\PostcodeServiceProvider::class,
 ]
 ```
 
 Also add the alias:
 ```php
 'aliases' => [
-	'Postcode' => Postcodes\Facades\Postcode::class,
+	'Postcode' => Codescheme\Postcodes\Facades\Postcode::class,
 ]
 ```
 
