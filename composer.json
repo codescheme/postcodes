@@ -17,12 +17,11 @@
         "psr-4": {
              "Codescheme\\Postcodes\\": "src/"
         }
+    },
     "autoload-dev": {
         "psr-4": {
             "Codescheme\\Postcodes\\Tests\\": "tests/"
         }
-    }
-
     },
     "minimum-stability": "stable"
 }
