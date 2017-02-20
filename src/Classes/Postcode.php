@@ -2,138 +2,182 @@
 
 namespace Codescheme\Postcodes\Classes;
 
-use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Exception\Handler;
 
-class Postcode {
+class Postcode
+{
+    /**
+     * The endpoint base uri
+     */
+    protected $base_uri = 'https://api.postcodes.io';
 
-	private $base_url = 'https://api.postcodes.io';
-	public $format = 'object';
-		
-	  /**
-   * Validates a postcode
-   *
-   * @param string $postcode, to be validated
-   * @return boolean
-   */
-  public function validate($postcode)
-  {
-		$url = $this->base_url . '/postcodes/' . rawurlencode($postcode) . '/validate';
-		
-		$response = $this->_http_request($url);
-		
-		return ($response && (200 === $response->status) && $response->result); 
-	}
-	
-	  /**
-   * Find nearest postcodes to given
-   *
-   * @param string $postcode 
-	 * @param string $format 
-   * @return by $this->format object|string|array  null on Exception 
-   */	
-	public function nearest($postcode, $format='object')
-  {
-		$this->format = $format;
-		$url = $this->base_url . '/postcodes/' . rawurlencode($postcode) . '/nearest';
+    /**
+     * The default HTTP Headers
+     */
+    protected $headers;
 
-		return $this->_http_request($url);
-	}
-		
-	  /**
-   * Get postcode from coordinates
-   *
-   * @params string $lon, $lat, the coordinates
-	 * @param string $format, 
-   * @return by $this->format object|string|array  null on Exception 
-   */	
-	public function reverseGeocode($lon, $lat, $format='object')
-  {
-		$this->format = $format;
-		$url = $this->base_url . '/postcodes?lon=' . (float) $lon . '&lat=' . (float) $lat ;
+    /**
+     * The Guzzle client instance
+     */
+    protected $client;
 
-		return $this->_http_request($url);
-	}
-		
-	  /**
-   * Autocomplete a postcode, especially 
-   *
-   * @param string $postcode, partial, especially outcode 
-	 * @param string $format, 
-   * @return by $this->format object|string|array  null on Exception 
-   */	
-	public function autocomplete($postcode, $format='object')
-  {
-		$this->format = $format;
-		$url = $this->base_url . '/postcodes/' . rawurlencode($postcode) . '/autocomplete';
+    /**
+     * Construct a Guzzle client
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->headers = [
+            'User-Agent' => 'CodeschemeLaravelPostcodes/1.3 https://github.com/codescheme/postcodes',
+            'Accept'     => 'application/json',
+        ];
 
-		return $this->_http_request($url);
-	}
-		
-	/**
-   * Look up a postcode, 
-   *
-   * @param string $postcode,  
-	 * @param string $format, 
-   * @return by $this->format object|string|array  null on Exception 
-   */	
-	public function postcodeLookup($postcode, $format='object')
-  {
-		$this->format = $format;
-		$url = $this->base_url . '/postcodes/' . rawurlencode($postcode);
+        $this->client = new Client(['base_uri' => $this->base_uri,  'headers' => $this->headers, 'http_errors' => false, 'verify' => __DIR__ . '/../cacert.pem']);
+    }
 
-		return $this->_http_request($url);
-	}
-	
-	/**
-   * Look up a outcode, 
-   *
-   * @param string $outcode,  
-	 * @param string $format, 
-   * @return by $this->format object|string|array  null on Exception 
-   */	
-	public function outcodeLookup($outcode, $format='object')
-  {
-		$this->format = $format;
-		$url = $this->base_url . '/outcodes/' . rawurlencode($outcode);
+    /**
+     * Validates a postcode
+     *
+     * @param string $postcode to be validated
+     * @return boolean
+     */
+    public function validate($postcode)
+    {
+        $url = '/postcodes/' . rawurlencode($postcode) . '/validate';
+        $request = new Request('GET', $url);
+        $response = $this->httpTransport($request);
 
-		return $this->_http_request($url);
-	}
-		
-	 /**
-   * Does the http GET
-   *
-   * @param string $url, the endpoint
-   * @return by $this->format object|string|array  null on Exception 
-   */		
-	private function _http_request($url)
-	{
+        return ($response && (200 === $response->status) && $response->result); 
+    }
 
-		try {
-    	$response = file_get_contents($url);
+    /**
+     * Find nearest postcodes to given
+     *
+     * @param string         $postcode 
+     * @return object | null on Exception  
+     */
+    public function nearest($postcode)
+    {
+        $url = '/postcodes/' . rawurlencode($postcode) . '/nearest';
+        $request = new Request('GET', $url);
 
-    	if ($response === false) {
-      	throw new Exception("Classes\Postcode file_get_contents error"); 
-    	}
-		
-			switch ($this->format)
-			{
-				default :
-				case 'object' : $response = json_decode($response);
-				break;
-				case 'json'   :
-				break;
-				case 'array'  : $response = json_decode($response, true);
-				break;
-			}
-			return $response;
-			
-		} catch (Exception $e) {
-    	// Handle exception by Laravel logger
-			Log::error($e);
-			return null;
-		} 
-	}
- 
-} //eoclass
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Get postcode from coordinates
+     *
+     * @params string        $lon, $lat    the coordinates
+     * @return object | null on Exception 
+     */
+    public function reverseGeocode($lon, $lat)
+    {
+        $url = '/postcodes?lon=' . (float) $lon . '&lat=' . (float) $lat;
+        $request = new Request('GET', $url);
+
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Autocomplete a postcode, 
+     *
+     * @param string             $postcode, partial, especially outcode 
+     * @return object | null on Exception  
+     */
+    public function autocomplete($postcode)
+    {
+        $url = '/postcodes/' . rawurlencode($postcode) . '/autocomplete';
+        $request = new Request('GET', $url);
+
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Look up a postcode, 
+     *
+     * @param string $postcode,  
+     * @return object | null on Exception  
+     */
+    public function postcodeLookup($postcode)
+    {
+        $url = '/postcodes/' . rawurlencode($postcode);
+        $request = new Request('GET', $url);
+
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Look up a outcode, 
+     *
+     * @param string $outcode,  
+     * @return object | null on Exception 
+     */
+    public function outcodeLookup($outcode)
+    {
+        $url = '/outcodes/' . rawurlencode($outcode);
+        $request = new Request('GET', $url);
+
+        return $this->httpTransport($request);
+     }
+
+    /**
+     * Bulk information lookup for multiple postcodes
+     *
+     * @param array $postcodes   
+     * @return object | null on RequestException 
+     */
+    public function postcodeLookupBulk($postcodes)
+    {
+        $headers = ['Content-Type' => 'application/json'];
+        $body = ['postcodes' => $postcodes];
+
+        $request = new Request('POST', '/postcodes', $headers, json_encode($body));
+
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Bulk lookup of postcodes matching multiple lon/lat coordinates
+     *
+     * @param array(array(longitude,latitude)) $geolocations   
+     * @return object | null on RequestException 
+     */
+    public function reverseGeocodeBulk($geolocations)
+    {
+        $headers = ['Content-Type' => 'application/json'];
+        $body = ['geolocations' => $geolocations];
+
+        $request = new Request('POST', '/postcodes', $headers, json_encode($body));
+
+        return $this->httpTransport($request);
+    }
+
+    /**
+     * Does the http
+     *
+     * @param GuzzleHttp\Psr7\Request $request
+     * @throws RequestException
+     * @return object | null on RequestException
+     */
+    protected function httpTransport($request)
+    {
+
+    try {
+        $response = $this->client->send($request);
+        $results = json_decode($response->getBody());
+
+        return $results;
+
+        } catch (RequestException $e) {
+            Log::error(Psr7\str($e->getRequest()));
+            if ($e->hasResponse()) {
+                Log::error(Psr7\str($e->getResponse()));
+            }
+        }
+    }
+}
