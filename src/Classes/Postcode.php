@@ -37,7 +37,12 @@ class Postcode
             'Accept'     => 'application/json',
         ];
 
-        $this->client = new Client(['base_uri' => $this->base_uri,  'headers' => $this->headers, 'http_errors' => false, 'verify' => __DIR__ . '/../cacert.pem']);
+        $this->client = new Client([
+            'base_uri' => $this->base_uri,
+            'headers' => $this->headers,
+            'http_errors' => false,
+            'verify' => __DIR__ . '/../cacert.pem'
+        ]);
     }
 
     /**
@@ -52,14 +57,14 @@ class Postcode
         $request = new Request('GET', $url);
         $response = $this->httpTransport($request);
 
-        return ($response && (200 === $response->status) && $response->result); 
+        return ($response && (200 === $response->status) && $response->result);
     }
 
     /**
      * Find nearest postcodes to given
      *
-     * @param string         $postcode 
-     * @return object | null on Exception  
+     * @param string         $postcode
+     * @return object | null on Exception
      */
     public function nearest($postcode)
     {
@@ -73,7 +78,7 @@ class Postcode
      * Get postcode from coordinates
      *
      * @params string        $lon, $lat    the coordinates
-     * @return object | null on Exception 
+     * @return object | null on Exception
      */
     public function reverseGeocode($lon, $lat)
     {
@@ -84,10 +89,10 @@ class Postcode
     }
 
     /**
-     * Autocomplete a postcode, 
+     * Autocomplete a postcode,
      *
-     * @param string             $postcode, partial, especially outcode 
-     * @return object | null on Exception  
+     * @param string             $postcode, partial, especially outcode
+     * @return object | null on Exception
      */
     public function autocomplete($postcode)
     {
@@ -98,10 +103,10 @@ class Postcode
     }
 
     /**
-     * Look up a postcode, 
+     * Look up a postcode,
      *
-     * @param string $postcode,  
-     * @return object | null on Exception  
+     * @param string $postcode,
+     * @return object | null on Exception
      */
     public function postcodeLookup($postcode)
     {
@@ -112,10 +117,10 @@ class Postcode
     }
 
     /**
-     * Look up a outcode, 
+     * Look up a outcode,
      *
-     * @param string $outcode,  
-     * @return object | null on Exception 
+     * @param string $outcode,
+     * @return object | null on Exception
      */
     public function outcodeLookup($outcode)
     {
@@ -123,13 +128,13 @@ class Postcode
         $request = new Request('GET', $url);
 
         return $this->httpTransport($request);
-     }
+    }
 
     /**
      * Bulk information lookup for multiple postcodes
      *
-     * @param array $postcodes   
-     * @return object | null on RequestException 
+     * @param array $postcodes
+     * @return object | null on RequestException
      */
     public function postcodeLookupBulk($postcodes)
     {
@@ -167,12 +172,10 @@ class Postcode
     protected function httpTransport($request)
     {
 
-    try {
-        $response = $this->client->send($request);
-        $results = json_decode($response->getBody());
-
-        return $results;
-
+        try {
+            $response = $this->client->send($request);
+            $results = json_decode($response->getBody());
+            return $results;
         } catch (RequestException $e) {
             Log::error(Psr7\str($e->getRequest()));
             if ($e->hasResponse()) {
