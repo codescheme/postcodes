@@ -3,7 +3,7 @@
 
 
 A Laravel 5+ facade/service provider for the API methods at ```postcodes.io``` - useful for UK postcode validation and reverse geocoding: that is, determining postcode from lat, long coordinates.
-**No fiddling around api keys, authentication necessary...**
+**No fiddling around with api keys, authentication, necessary...**
 
 With thanks to https://postcodes.io
 
