@@ -14,6 +14,8 @@ With thanks to https://postcodes.io
 composer require codescheme/postcodes
 ```
 
+For Laravel 5.5 *Postcodes* will be automatically discovered.
+
 Edit `/config/app.php` and add the service provider to your `providers` array.
 ```php
 'providers' => [

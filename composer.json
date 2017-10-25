@@ -30,5 +30,15 @@
     },
     "scripts": {
         "test": "phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Codescheme\\Postcodes\\PostcodeServiceProvider"
+            ],
+            "aliases": {
+                "Postcode": "Codescheme\\Postcodes\\Facades\\Postcode"
+            }
+        }
     }
 }
