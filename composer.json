@@ -3,6 +3,7 @@
     "description": "UK Postcode API Facade for Laravel",
     "keywords": ["postcodes", "postcode","laravel", "laravel5", "api", "json"],
     "license": "MIT",
+    "homepage": "https://codescheme.github.io",
     "authors": [
         {
             "name": "Codescheme",
