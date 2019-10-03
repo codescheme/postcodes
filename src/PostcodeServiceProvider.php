@@ -23,8 +23,7 @@ class PostcodeServiceProvider extends ServiceProvider
      */
     public function register()
     {
-         \App::bind('postcode', function()
-        {
+        \App::bind('postcode', function () {
             return new Classes\Postcode;
         });
     }
