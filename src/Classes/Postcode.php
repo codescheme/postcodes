@@ -33,7 +33,7 @@ class Postcode
     public function __construct()
     {
         $this->headers = [
-            'User-Agent' => 'CodeschemeLaravelPostcodes/1.3 https://github.com/codescheme/postcodes',
+            'User-Agent' => 'CodeschemeLaravelPostcodes/1.4 https://github.com/codescheme/postcodes',
             'Accept'     => 'application/json',
         ];
 
