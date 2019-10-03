@@ -171,7 +171,6 @@ class Postcode
      */
     protected function httpTransport($request)
     {
-
         try {
             $response = $this->client->send($request);
             $results = json_decode($response->getBody());
