@@ -4,13 +4,14 @@ namespace Codescheme\Postcodes\Tests;
 
 use Codescheme\Postcodes\Classes\Postcode;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\TestCase;
 
-class PostcodeTest extends \PHPUnit_Framework_TestCase
+class PostcodeTest extends TestCase
 {
     /**
-     * 
      *
-     * @return void 
+     *
+     * @return void
      */
 
     public function testCanValidatePostcode()
@@ -21,7 +22,7 @@ class PostcodeTest extends \PHPUnit_Framework_TestCase
         $stub->method('validate')
              ->willReturn(true);
         $this->assertTrue($stub->validate('SE21 8JL'));
-        
+
         $stub->method('validate')
              ->willReturn(false);
         $this->assertTrue($stub->validate('SE51 8JL'));
@@ -85,7 +86,7 @@ class PostcodeTest extends \PHPUnit_Framework_TestCase
             'status' => 404,
             'error' => 'Postcode not found',
         ]));
-    
+
         $expectedObject = json_decode($response->getBody());
 
         $mock = $this->getMockBuilder(Postcode::class)
