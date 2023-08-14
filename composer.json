@@ -19,11 +19,12 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/support": "^8.0",
-        "guzzlehttp/guzzle": "^7.2"
+        "illuminate/support": "^9.52.15",
+        "guzzlehttp/guzzle": "^7.7"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5.27"
+        "phpunit/phpunit": "^9.6.10",
+        "phpstan/phpstan": "^1.10.28"
     },
     "autoload": {
         "psr-4": {

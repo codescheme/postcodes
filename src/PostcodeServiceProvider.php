@@ -2,6 +2,7 @@
 
 namespace Codescheme\Postcodes;
 
+use Codescheme\Postcodes\Classes\Postcode;
 use Illuminate\Support\ServiceProvider;
 
 class PostcodeServiceProvider extends ServiceProvider
@@ -19,13 +20,12 @@ class PostcodeServiceProvider extends ServiceProvider
     /**
      * Register the application services.
      *
-     * @return object
+     * @return void
      */
     public function register()
     {
-         \App::bind('postcode', function()
-        {
-            return new Classes\Postcode;
+        $this->app->bind('postcode', function () {
+            return new Postcode();
         });
     }
 }

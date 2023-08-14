@@ -3,9 +3,9 @@
 namespace Codescheme\Postcodes\Classes;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Message;
 use Illuminate\Support\Facades\Log;
 
 class Postcode
@@ -13,17 +13,18 @@ class Postcode
     /**
      * The endpoint base uri
      */
-    protected $base_uri = 'https://api.postcodes.io';
+    protected string $base_uri = 'https://api.postcodes.io';
 
     /**
      * The default HTTP Headers
+     * @var array<string, string>
      */
-    protected $headers;
+    protected array $headers;
 
     /**
      * The Guzzle client instance
      */
-    protected $client;
+    protected Client $client;
 
     /**
      * Construct a Guzzle client
@@ -49,138 +50,125 @@ class Postcode
      * Validates a postcode
      *
      * @param string $postcode to be validated
-     * @return boolean
+     * @return bool
      */
-    public function validate($postcode)
+    public function validate(string $postcode): bool
     {
         $url = '/postcodes/' . rawurlencode($postcode) . '/validate';
-        $request = new Request('GET', $url);
-        $response = $this->httpTransport($request);
+        $response = $this->httpTransport(request: new Request(method: 'GET', uri: $url));
 
-        return ($response && (200 === $response->status) && $response->result);
+        return $response?->status === 200 && $response->result;
     }
 
     /**
-     * Find nearest postcodes to given
-     *
-     * @param string         $postcode
+     * @param string $postcode Find nearest postcodes to given postcode
+     * @throws RequestException
      * @return object | null on Exception
      */
-    public function nearest($postcode)
+    public function nearest(string $postcode): ?object
     {
         $url = '/postcodes/' . rawurlencode($postcode) . '/nearest';
-        $request = new Request('GET', $url);
 
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request(method: 'GET', uri: $url));
     }
 
     /**
      * Get postcode from coordinates
-     *
-     * @params string        $lon, $lat    the coordinates
+     * @throws RequestException
      * @return object | null on Exception
      */
-    public function reverseGeocode($lon, $lat)
-    {
-        $url = '/postcodes?lon=' . (float) $lon . '&lat=' . (float) $lat;
-        $request = new Request('GET', $url);
 
-        return $this->httpTransport($request);
+    public function reverseGeocode(float $lon, float $lat): ?object
+    {
+        $url = "/postcodes?lon={$lon}&lat={$lat}";
+
+        return $this->httpTransport(request: new Request(method: 'GET', uri: $url));
     }
 
     /**
      * Autocomplete a postcode,
      *
-     * @param string             $postcode, partial, especially outcode
+     * partial postcode, especially outcode
+     * @throws RequestException
      * @return object | null on Exception
      */
-    public function autocomplete($postcode)
+    public function autocomplete(string $postcode): ?object
     {
         $url = '/postcodes/' . rawurlencode($postcode) . '/autocomplete';
-        $request = new Request('GET', $url);
 
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request(method: 'GET', uri: $url));
     }
 
     /**
      * Look up a postcode,
-     *
-     * @param string $postcode,
+     * @throws RequestException
      * @return object | null on Exception
      */
-    public function postcodeLookup($postcode)
+    public function postcodeLookup(string $postcode): ?object
     {
         $url = '/postcodes/' . rawurlencode($postcode);
-        $request = new Request('GET', $url);
 
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request(method: 'GET', uri: $url));
     }
 
     /**
-     * Look up a outcode,
-     *
-     * @param string $outcode,
+     * Look up an outcode,
+     * @throws RequestException
      * @return object | null on Exception
      */
-    public function outcodeLookup($outcode)
+    public function outcodeLookup(string $outcode): ?object
     {
         $url = '/outcodes/' . rawurlencode($outcode);
-        $request = new Request('GET', $url);
 
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request(method: 'GET', uri: $url));
     }
 
     /**
      * Bulk information lookup for multiple postcodes
-     *
-     * @param array $postcodes
+     * @param array<string> $postcodes Array of postcodes
+     * @throws RequestException
      * @return object | null on RequestException
      */
-    public function postcodeLookupBulk($postcodes)
+    public function postcodeLookupBulk(array $postcodes): ?object
     {
         $headers = ['Content-Type' => 'application/json'];
-        $body = ['postcodes' => $postcodes];
 
-        $request = new Request('POST', '/postcodes', $headers, json_encode($body));
-
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request('POST', '/postcodes', $headers, json_encode(['postcodes' => $postcodes])));
     }
 
     /**
-     * Bulk lookup of postcodes matching multiple lon/lat coordinates
+     * Bulk lookup of postcodes matching multiple lon/lat coordinates.
      *
-     * @param array(array(longitude,latitude)) $geolocations   
+     * @param array<array<string,float>> $geolocations Array of geolocation arrays with 'longitude' and 'latitude' keys.
+     * @throws RequestException
      * @return object | null on RequestException 
      */
-    public function reverseGeocodeBulk($geolocations)
+    public function reverseGeocodeBulk(array $geolocations): ?object
     {
         $headers = ['Content-Type' => 'application/json'];
-        $body = ['geolocations' => $geolocations];
 
-        $request = new Request('POST', '/postcodes', $headers, json_encode($body));
-
-        return $this->httpTransport($request);
+        return $this->httpTransport(request: new Request('POST', '/postcodes', $headers, json_encode(['geolocations' => $geolocations])));
     }
 
     /**
      * Does the http
      *
-     * @param GuzzleHttp\Psr7\Request $request
+     * @param \GuzzleHttp\Psr7\Request $request
      * @throws RequestException
      * @return object | null on RequestException
      */
-    protected function httpTransport($request)
+    protected function httpTransport(Request $request): ?object
     {
-
         try {
             $response = $this->client->send($request);
-            $results = json_decode($response->getBody());
-            return $results;
+            return json_decode(json: $response->getBody());
         } catch (RequestException $e) {
-            Log::error(Psr7\str($e->getRequest()));
+            Log::error(Message::toString($e->getRequest()));
             if ($e->hasResponse()) {
-                Log::error(Psr7\str($e->getResponse()));
+                Log::error(Message::toString($e->getResponse()));
             }
         }
+
+        return null;
     }
 }
